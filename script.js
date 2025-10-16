@@ -1,14 +1,8 @@
 // ==========================================
-// AIEC IITM - Advanced AI Animations
-// Using GSAP, Three.js, and Custom Effects
+// AIEC IITM - Clean Version (No GSAP / No Three.js)
 // ==========================================
 
-// Register GSAP ScrollTrigger
-gsap.registerPlugin(ScrollTrigger);
-
-// ==========================================
-// 1. LOADER WITH PROGRESS ANIMATION
-// ==========================================
+// 1. LOADER ANIMATION
 let progress = 0;
 const loader = document.getElementById("loader");
 const progressBar = document.querySelector(".progress");
@@ -19,7 +13,7 @@ const ml = document.getElementById("ml");
 const ai = document.getElementById("ai");
 
 const progressInterval = setInterval(() => {
-  progress += 2;
+  progress += 3;
   progressBar.style.width = progress + "%";
   if (progressGlow) progressGlow.style.width = progress + "%";
   percentageText.textContent = progress + "%";
@@ -31,23 +25,16 @@ const progressInterval = setInterval(() => {
   if (progress >= 100) {
     clearInterval(progressInterval);
     setTimeout(() => {
-      gsap.to(loader, {
-        opacity: 0,
-        duration: 0.8,
-        ease: "power2.inOut",
-        onComplete: () => {
-          loader.style.display = "none";
-          document.body.style.overflow = "auto";
-          initAnimations();
-        }
-      });
-    }, 500);
+      loader.style.opacity = 0;
+      setTimeout(() => {
+        loader.style.display = "none";
+        document.body.style.overflow = "auto";
+      }, 800);
+    }, 400);
   }
 }, 80);
 
-// ==========================================
-// 2. NAVBAR SCROLL EFFECTS
-// ==========================================
+// 2. NAVBAR SCROLL EFFECT
 window.addEventListener("scroll", function () {
   const navbar = document.querySelector(".navbar");
   if (window.scrollY > 50) {
@@ -57,52 +44,75 @@ window.addEventListener("scroll", function () {
   }
 });
 
-// Mobile menu toggle
+// 3. MOBILE MENU TOGGLE
 const menuToggle = document.querySelector(".menu-toggle");
 const navLinks = document.querySelector(".nav-links");
-
 if (menuToggle) {
   menuToggle.addEventListener("click", () => {
     navLinks.classList.toggle("show");
   });
 }
 
-// Close menu when link clicked
-document.querySelectorAll(".nav-links a").forEach(link => {
-  link.addEventListener("click", () => {
-    navLinks.classList.remove("show");
-  });
-});
-
-// ==========================================
-// 3. TYPING EFFECT
-// ==========================================
+// 4. TYPING EFFECT
 const typingText = document.querySelector(".typing-text");
-const words = ["Artificial Intelligence", "Machine Learning", "Deep Learning", "Neural Networks", "Future Technology"];
-let wordIndex = 0, charIndex = 0;
+const words = [
+  "Artificial Intelligence",
+  "Machine Learning",
+  "Neural Networks",
+  "Future Technology",
+];
+let wordIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
 
 function type() {
-  if (charIndex < words[wordIndex].length) {
-    typingText.textContent += words[wordIndex].charAt(charIndex);
+  const currentWord = words[wordIndex];
+  if (!isDeleting) {
+    typingText.textContent = currentWord.substring(0, charIndex + 1);
     charIndex++;
-    setTimeout(type, 80);
+    if (charIndex === currentWord.length) {
+      isDeleting = true;
+      setTimeout(type, 1500);
+      return;
+    }
   } else {
-    setTimeout(erase, 2000);
-  }
-}
-
-function erase() {
-  if (charIndex > 0) {
-    typingText.textContent = words[wordIndex].substring(0, charIndex - 1);
+    typingText.textContent = currentWord.substring(0, charIndex - 1);
     charIndex--;
-    setTimeout(erase, 40);
-  } else {
-    wordIndex = (wordIndex + 1) % words.length;
-    setTimeout(type, 300);
+    if (charIndex === 0) {
+      isDeleting = false;
+      wordIndex = (wordIndex + 1) % words.length;
+    }
+  }
+  setTimeout(type, isDeleting ? 60 : 100);
+}
+setTimeout(type, 1000);
+
+// 5. SIMPLE HERO PARTICLE EFFECT (Static Floating Dots)
+const heroParticles = document.getElementById("hero-particles");
+if (heroParticles) {
+  for (let i = 0; i < 30; i++) {
+    const particle = document.createElement("div");
+    particle.style.position = "absolute";
+    particle.style.width = Math.random() * 4 + "px";
+    particle.style.height = particle.style.width;
+    particle.style.background = Math.random() > 0.5 ? "#00f6ff" : "#7b2ff7";
+    particle.style.borderRadius = "50%";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.top = Math.random() * 100 + "%";
+    particle.style.opacity = Math.random() * 0.6 + 0.2;
+    particle.style.animation = `floatParticle ${3 + Math.random() * 4}s ease-in-out infinite`;
+    heroParticles.appendChild(particle);
   }
 }
 
-setTimeout(type, 1000);
+// 6. FLOAT PARTICLE ANIMATION (CSS injected here)
+const style = document.createElement("style");
+style.textContent = `
+@keyframes floatParticle {
+  0%,100% { transform: translateY(0); opacity: 0.8; }
+  50% { transform: translateY(-20px); opacity: 1; }
+}`;
+document.head.appendChild(style);
 
 // ==========================================
 // 4. ENHANCED 3D GLOBE WITH NEURAL NETWORKS
@@ -308,477 +318,3 @@ if (canvas) {
   });
 }
 
-// ==========================================
-// 5. NEURAL NETWORK BACKGROUND
-// ==========================================
-const neuralCanvas = document.getElementById("neural-bg");
-if (neuralCanvas) {
-  const ctx = neuralCanvas.getContext("2d");
-  neuralCanvas.width = window.innerWidth;
-  neuralCanvas.height = window.innerHeight;
-
-  const neurons = [];
-  const neuronCount = 80;
-
-  for (let i = 0; i < neuronCount; i++) {
-    neurons.push({
-      x: Math.random() * neuralCanvas.width,
-      y: Math.random() * neuralCanvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      radius: Math.random() * 2 + 1
-    });
-  }
-
-  function drawNeuralNetwork() {
-    ctx.clearRect(0, 0, neuralCanvas.width, neuralCanvas.height);
-
-    // Draw connections
-    ctx.strokeStyle = "rgba(0, 246, 255, 0.15)";
-    ctx.lineWidth = 1;
-
-    for (let i = 0; i < neurons.length; i++) {
-      for (let j = i + 1; j < neurons.length; j++) {
-        const dx = neurons[i].x - neurons[j].x;
-        const dy = neurons[i].y - neurons[j].y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < 150) {
-          ctx.beginPath();
-          ctx.moveTo(neurons[i].x, neurons[i].y);
-          ctx.lineTo(neurons[j].x, neurons[j].y);
-          ctx.globalAlpha = 1 - distance / 150;
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Draw neurons
-    ctx.globalAlpha = 1;
-    neurons.forEach(neuron => {
-      ctx.beginPath();
-      ctx.arc(neuron.x, neuron.y, neuron.radius, 0, Math.PI * 2);
-      ctx.fillStyle = "#00f6ff";
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "#00f6ff";
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      // Move neurons
-      neuron.x += neuron.vx;
-      neuron.y += neuron.vy;
-
-      if (neuron.x < 0 || neuron.x > neuralCanvas.width) neuron.vx *= -1;
-      if (neuron.y < 0 || neuron.y > neuralCanvas.height) neuron.vy *= -1;
-    });
-
-    requestAnimationFrame(drawNeuralNetwork);
-  }
-  drawNeuralNetwork();
-
-  window.addEventListener("resize", () => {
-    neuralCanvas.width = window.innerWidth;
-    neuralCanvas.height = window.innerHeight;
-  });
-}
-
-// ==========================================
-// 6. MATRIX RAIN EFFECT
-// ==========================================
-const matrixCanvas = document.getElementById("matrix-rain");
-if (matrixCanvas) {
-  const mCtx = matrixCanvas.getContext("2d");
-  matrixCanvas.width = window.innerWidth;
-  matrixCanvas.height = window.innerHeight;
-
-  const characters = "01アイウエオカキクケコサシスセソタチツテトナニヌネノ";
-  const fontSize = 15;
-  const columns = matrixCanvas.width / fontSize;
-  const drops = Array(Math.floor(columns)).fill(1);
-
-  function drawMatrix() {
-    mCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    mCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-
-    mCtx.fillStyle = "#00f6ff";
-    mCtx.font = fontSize + "px monospace";
-
-    drops.forEach((y, i) => {
-      const text = characters[Math.floor(Math.random() * characters.length)];
-      const x = i * fontSize;
-
-      mCtx.fillText(text, x, y * fontSize);
-
-      if (y * fontSize > matrixCanvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      }
-      drops[i]++;
-    });
-  }
-
-  setInterval(drawMatrix, 50);
-
-  window.addEventListener("resize", () => {
-    matrixCanvas.width = window.innerWidth;
-    matrixCanvas.height = window.innerHeight;
-  });
-}
-
-// ==========================================
-// 7. HERO PARTICLES
-// ==========================================
-const heroParticles = document.getElementById("hero-particles");
-if (heroParticles) {
-  const particleCount = 50;
-  
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement("div");
-    particle.style.position = "absolute";
-    particle.style.width = Math.random() * 3 + 1 + "px";
-    particle.style.height = particle.style.width;
-    particle.style.background = Math.random() > 0.5 ? "#00f6ff" : "#7b2ff7";
-    particle.style.borderRadius = "50%";
-    particle.style.left = Math.random() * 100 + "%";
-    particle.style.top = Math.random() * 100 + "%";
-    particle.style.opacity = Math.random() * 0.5 + 0.3;
-    particle.style.boxShadow = `0 0 ${Math.random() * 20 + 10}px currentColor`;
-    
-    heroParticles.appendChild(particle);
-
-    gsap.to(particle, {
-      y: Math.random() * 200 - 100,
-      x: Math.random() * 200 - 100,
-      duration: Math.random() * 10 + 5,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut"
-    });
-  }
-}
-
-// ==========================================
-// 8. GSAP SCROLL ANIMATIONS
-// ==========================================
-function initAnimations() {
-  // Hero entrance
-  gsap.from(".hero-text", {
-    opacity: 0,
-    y: 50,
-    duration: 1,
-    ease: "power3.out"
-  });
-
-  gsap.from(".hero-globe", {
-    opacity: 0,
-    scale: 0.8,
-    duration: 1.2,
-    delay: 0.3,
-    ease: "back.out(1.7)"
-  });
-
-  // About cards stagger
-  gsap.from(".about-card", {
-    scrollTrigger: {
-      trigger: ".about-cards",
-      start: "top 80%"
-    },
-    opacity: 0,
-    y: 50,
-    stagger: 0.15,
-    duration: 0.8,
-    ease: "power2.out"
-  });
-
-  // About features
-  gsap.from(".about-feature", {
-    scrollTrigger: {
-      trigger: ".about-right",
-      start: "top 80%"
-    },
-    opacity: 0,
-    x: 50,
-    stagger: 0.2,
-    duration: 0.8,
-    ease: "power2.out"
-  });
-
-  // Events cards
-  gsap.from(".event-card", {
-    scrollTrigger: {
-      trigger: ".events-grid",
-      start: "top 80%"
-    },
-    opacity: 0,
-    y: 80,
-    stagger: 0.2,
-    duration: 1,
-    ease: "power3.out"
-  });
-
-  // Projects cards with 3D rotation
-  gsap.from(".project-card", {
-    scrollTrigger: {
-      trigger: ".projects-grid",
-      start: "top 80%"
-    },
-    opacity: 0,
-    rotateY: 90,
-    stagger: 0.2,
-    duration: 1,
-    ease: "power2.out"
-  });
-
-  // Section titles
-  gsap.utils.toArray(".cyber-title").forEach(title => {
-    gsap.from(title, {
-      scrollTrigger: {
-        trigger: title,
-        start: "top 85%"
-      },
-      opacity: 0,
-      scale: 0.8,
-      duration: 0.8,
-      ease: "back.out(1.7)"
-    });
-  });
-
-  // Parallax effect for sections
-  gsap.utils.toArray(".blur-section").forEach(section => {
-    gsap.to(section, {
-      scrollTrigger: {
-        trigger: section,
-        start: "top bottom",
-        end: "bottom top",
-        scrub: 1
-      },
-      y: -50
-    });
-  });
-}
-
-// ==========================================
-// 9. EVENT BUTTONS
-// ==========================================
-document.querySelectorAll(".event-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    gsap.to(btn, {
-      scale: 0.95,
-      duration: 0.1,
-      yoyo: true,
-      repeat: 1
-    });
-    
-    // Create ripple effect
-    const ripple = document.createElement("span");
-    ripple.style.position = "absolute";
-    ripple.style.width = "20px";
-    ripple.style.height = "20px";
-    ripple.style.background = "rgba(255, 255, 255, 0.5)";
-    ripple.style.borderRadius = "50%";
-    ripple.style.left = "50%";
-    ripple.style.top = "50%";
-    ripple.style.transform = "translate(-50%, -50%)";
-    ripple.style.pointerEvents = "none";
-    
-    btn.appendChild(ripple);
-    
-    gsap.to(ripple, {
-      scale: 20,
-      opacity: 0,
-      duration: 0.6,
-      ease: "power2.out",
-      onComplete: () => ripple.remove()
-    });
-  });
-});
-
-// ==========================================
-// 10. FOOTER TYPING EFFECT
-// ==========================================
-const footerTyping = document.getElementById("footer-typing");
-if (footerTyping) {
-  const footerWords = [
-    "© 2025 AIEC IITM — Powering the Future with AI",
-    "Innovate • Build • Inspire • Lead",
-    "Join the AI Revolution"
-  ];
-  let fWordIndex = 0, fCharIndex = 0;
-
-  function typeFooter() {
-    if (fCharIndex < footerWords[fWordIndex].length) {
-      footerTyping.textContent += footerWords[fWordIndex].charAt(fCharIndex);
-      fCharIndex++;
-      setTimeout(typeFooter, 60);
-    } else {
-      setTimeout(eraseFooter, 3000);
-    }
-  }
-
-  function eraseFooter() {
-    if (fCharIndex > 0) {
-      footerTyping.textContent = footerWords[fWordIndex].substring(0, fCharIndex - 1);
-      fCharIndex--;
-      setTimeout(eraseFooter, 30);
-    } else {
-      fWordIndex = (fWordIndex + 1) % footerWords.length;
-      setTimeout(typeFooter, 500);
-    }
-  }
-
-  setTimeout(typeFooter, 2000);
-}
-
-// ==========================================
-// 11. FOOTER PARTICLES
-// ==========================================
-const fCanvas = document.getElementById("footer-particles");
-if (fCanvas) {
-  const fCtx = fCanvas.getContext("2d");
-  const footer = document.querySelector(".footer");
-  fCanvas.width = window.innerWidth;
-  fCanvas.height = footer.offsetHeight;
-
-  const fParticles = [];
-  for (let i = 0; i < 60; i++) {
-    fParticles.push({
-      x: Math.random() * fCanvas.width,
-      y: Math.random() * fCanvas.height,
-      radius: Math.random() * 2 + 1,
-      dx: (Math.random() - 0.5) * 0.3,
-      dy: -Math.random() * 0.5 - 0.2,
-      color: Math.random() > 0.5 ? "#00f6ff" : "#7b2ff7"
-    });
-  }
-
-  function drawFooterParticles() {
-    fCtx.clearRect(0, 0, fCanvas.width, fCanvas.height);
-
-    fParticles.forEach(p => {
-      fCtx.beginPath();
-      fCtx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      fCtx.fillStyle = p.color;
-      fCtx.shadowBlur = 10;
-      fCtx.shadowColor = p.color;
-      fCtx.fill();
-      fCtx.shadowBlur = 0;
-
-      p.x += p.dx;
-      p.y += p.dy;
-
-      if (p.y < 0 || p.x < 0 || p.x > fCanvas.width) {
-        p.y = fCanvas.height;
-        p.x = Math.random() * fCanvas.width;
-      }
-    });
-
-    requestAnimationFrame(drawFooterParticles);
-  }
-  drawFooterParticles();
-
-  window.addEventListener("resize", () => {
-    fCanvas.width = window.innerWidth;
-    fCanvas.height = footer.offsetHeight;
-  });
-}
-
-// ==========================================
-// 12. INTERACTIVE CARD TILT EFFECT
-// ==========================================
-document.querySelectorAll(".event-card, .project-card, .about-card").forEach(card => {
-  card.addEventListener("mousemove", (e) => {
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = (y - centerY) / 20;
-    const rotateY = (centerX - x) / 20;
-
-    gsap.to(card, {
-      rotateX: rotateX,
-      rotateY: rotateY,
-      duration: 0.3,
-      transformPerspective: 1000,
-      ease: "power2.out"
-    });
-  });
-
-  card.addEventListener("mouseleave", () => {
-    gsap.to(card, {
-      rotateX: 0,
-      rotateY: 0,
-      duration: 0.5,
-      ease: "power2.out"
-    });
-  });
-});
-
-// ==========================================
-// 13. NEWSLETTER FORM
-// ==========================================
-const newsletterForm = document.querySelector(".newsletter-form");
-if (newsletterForm) {
-  newsletterForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const input = newsletterForm.querySelector("input");
-    const button = newsletterForm.querySelector("button");
-    
-    gsap.to(button, {
-      scale: 0.9,
-      duration: 0.1,
-      yoyo: true,
-      repeat: 1
-    });
-    
-    // Show success message
-    const originalText = button.innerHTML;
-    button.innerHTML = '<span>Subscribed! ✓</span>';
-    button.style.background = "linear-gradient(135deg, #00c9a7, #92fe9d)";
-    
-    setTimeout(() => {
-      button.innerHTML = originalText;
-      button.style.background = "";
-      input.value = "";
-    }, 3000);
-  });
-}
-
-// ==========================================
-// 14. SMOOTH SCROLL FOR ANCHOR LINKS
-// ==========================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener("click", function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
-    if (target) {
-      gsap.to(window, {
-        duration: 1,
-        scrollTo: { y: target, offsetY: 100 },
-        ease: "power3.inOut"
-      });
-    }
-  });
-});
-
-// ==========================================
-// 15. CURSOR TRAIL EFFECT (Optional)
-// ==========================================
-let cursorTrail = [];
-const maxTrailLength = 20;
-
-document.addEventListener("mousemove", (e) => {
-  cursorTrail.push({ x: e.clientX, y: e.clientY, time: Date.now() });
-  
-  if (cursorTrail.length > maxTrailLength) {
-    cursorTrail.shift();
-  }
-});
-
-// ==========================================
-// Console Welcome Message
-// ==========================================
-console.log("%c🤖 Welcome to AIEC IITM!", "color: #00f6ff; font-size: 24px; font-weight: bold;");
-console.log("%cPowered by AI | Built with ❤️", "color: #7b2ff7; font-size: 14px;");
-console.log("%cExplore the future of technology with us!", "color: #00f6ff; font-size: 12px;");
